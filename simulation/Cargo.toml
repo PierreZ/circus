@@ -1,0 +1,24 @@
+[package]
+name = "circus_simulation"
+version = "0.0.1"
+authors = ["Pierre Zemb <contact@pierrezemb.fr>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/PierreZ/circus"
+
+description = "Simulation framework inspired by FoundationDB"
+categories = ["simulation"]
+
+[dependencies]
+rand = { version = "0.8.4", features = ["small_rng"] }
+parking_lot = "0.11.1"
+once_cell = "1.8.0"
+tracing = "0.1"
+
+[dev-dependencies]
+tracing-subscriber = "0.2"
+
+[badges]
+coveralls = { repository = "PierreZ/circus", branch = "main", service = "github" }
+maintenance = { status = "experimental" }
