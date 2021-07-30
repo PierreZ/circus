@@ -3,6 +3,7 @@ name = "circus_simulation"
 version = "0.0.1"
 authors = ["Pierre Zemb <contact@pierrezemb.fr>"]
 edition = "2018"
+rust = "1.42.0"
 
 [dependencies]
 rand = { version = "0.8.4", features = ["small_rng"] }

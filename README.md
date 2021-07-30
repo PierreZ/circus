@@ -6,6 +6,7 @@ A toolkit to develop distributed systems
 [![Coverage Status](https://coveralls.io/repos/github/PierreZ/circus/badge.svg?branch=main)](https://coveralls.io/github/PierreZ/circus?branch=main)
 [![Dependency Status](https://deps.rs/repo/github/PierreZ/circus/status.svg)](https://deps.rs/repo/github/PierreZ/circus)
 ![License](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue.svg)
+[![Minimum rustc version](https://img.shields.io/badge/rustc-1.42.0+-lightgray.svg)](#rust-version-requirements)
 
 ## Overview
 
@@ -15,6 +16,10 @@ Highly experimental for now, but the end-goal is to provide some of the helpers 
 * a [rpc framework](https://forums.foundationdb.org/t/why-was-flow-developed/1711/2) built using the simulator.
   
 It will be compatible with both `async-std` and `Tokio`, allowing you to use Circus during development, then switch to your favorite runtime in production.
+
+## Rust version requirements
+
+The MSRV is Rust 1.42.0.
 
 ## Examples
 
