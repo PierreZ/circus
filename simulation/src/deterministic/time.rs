@@ -1,3 +1,4 @@
+//! time module
 use std::time;
 
 #[derive(Debug)]

@@ -1,3 +1,4 @@
+//! Random module
 use std::ops::{Deref, Range};
 
 use parking_lot::Mutex;
@@ -6,39 +7,45 @@ use rand::prelude::SmallRng;
 use rand::{Rng, SeedableRng};
 use std::sync::Arc;
 
-/// A deterministic source of randomness, initialized by a seed
-#[derive(Clone)]
-pub struct DeterministicRandom {
+/// A source of randomness that can be seeded to become deterministic
+#[derive(Clone, Debug)]
+pub struct Random {
     inner: Arc<Mutex<rand::rngs::SmallRng>>,
 }
 
-impl Default for DeterministicRandom {
+impl Default for Random {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl DeterministicRandom {
+impl Random {
+    /// create a non-deterministic random
     pub fn new() -> Self {
-        DeterministicRandom {
+        Random {
             inner: Arc::new(Mutex::new(rand::rngs::SmallRng::from_entropy())),
         }
     }
+
+    /// create a deterministic random given a seed
     pub fn new_with_seed(seed: u64) -> Self {
-        DeterministicRandom {
+        Random {
             inner: Arc::new(Mutex::new(rand::rngs::SmallRng::seed_from_u64(seed))),
         }
     }
+    /// generate a random value between the range
     pub fn random_between<T: SampleUniform + PartialOrd>(&mut self, range: Range<T>) -> T {
         let mut rng = self.inner.lock();
         (*rng).gen_range(range)
     }
 
-    pub fn random_boolean(&mut self) -> bool {
+    /// generate a random boolean given a probability
+    pub fn random_boolean(&mut self, probability: f64) -> bool {
         let mut rng = self.inner.lock();
-        (*rng).gen()
+        (*rng).gen_bool(probability)
     }
 
+    /// generate a float between 0 and 1
     pub fn random_01(&mut self) -> f32 {
         self.random_between(0_f32..1_f32)
     }
@@ -50,13 +57,13 @@ struct Inner {
 
 #[cfg(test)]
 mod tests {
-    use crate::deterministic::random::DeterministicRandom;
+    use crate::deterministic::random::Random;
 
     #[test]
     fn deterministic_random() {
         for seed in 0..9999 {
-            let mut a = DeterministicRandom::new_with_seed(seed);
-            let mut b = DeterministicRandom::new_with_seed(seed);
+            let mut a = Random::new_with_seed(seed);
+            let mut b = Random::new_with_seed(seed);
             for range in vec![0.0..1.0, 0.0..42.0, 0.0..999.0] {
                 for _ in 0..999 {
                     assert_eq!(
