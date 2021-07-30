@@ -12,6 +12,7 @@ struct DeterministicTime {
 }
 
 impl DeterministicTime {
+    /// create a new `DeterministicTime`
     fn new() -> Self {
         Self {
             base: time::Instant::now(),
@@ -19,10 +20,12 @@ impl DeterministicTime {
         }
     }
 
+    /// advance of some duration
     fn advance(&mut self, duration: time::Duration) {
         self.advance += duration;
     }
 
+    /// return base+advance time
     fn now(&self) -> time::Instant {
         self.base + self.advance
     }

@@ -1,9 +1,8 @@
 //! Random module
-use std::ops::{Deref, Range};
+use std::ops::Range;
 
 use parking_lot::Mutex;
 use rand::distributions::uniform::SampleUniform;
-use rand::prelude::SmallRng;
 use rand::{Rng, SeedableRng};
 use std::sync::Arc;
 
@@ -49,10 +48,6 @@ impl Random {
     pub fn random_01(&mut self) -> f32 {
         self.random_between(0_f32..1_f32)
     }
-}
-
-struct Inner {
-    rng: SmallRng,
 }
 
 #[cfg(test)]

@@ -26,4 +26,9 @@ fn main() {
             tracing::info!("buggified at iteration {}", i);
         }
     }
+
+    // buggify can also accept a probability
+    if buggify!(1.0) {
+        tracing::info!("buggified with a 100% probability!");
+    }
 }
