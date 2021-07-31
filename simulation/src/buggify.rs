@@ -161,6 +161,9 @@ mod tests {
             for key in (*map).keys() {
                 assert!(key.starts_with("simulation/src/buggify.rs:"));
             }
+            for value in (*map).values() {
+                assert!(value);
+            }
         }
 
         disable_buggify();
