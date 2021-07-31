@@ -4,7 +4,7 @@ version = "0.0.1"
 authors = ["Pierre Zemb <contact@pierrezemb.fr>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
-readme = "../README.md"
+readme = "README.md"
 repository = "https://github.com/PierreZ/circus"
 homepage = "https://github.com/PierreZ/circus"
 

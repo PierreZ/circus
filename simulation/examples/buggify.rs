@@ -3,10 +3,7 @@ extern crate circus_simulation;
 use circus_simulation::buggify;
 use circus_simulation::buggify::*;
 use circus_simulation::deterministic::random::Random;
-use std::ops::Deref;
-use tracing::{span, Level};
-use tracing_subscriber::prelude::*;
-use tracing_subscriber::{fmt, EnvFilter, Registry};
+use tracing::Level;
 
 fn main() {
     // init random with a seed
