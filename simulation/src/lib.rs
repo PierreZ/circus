@@ -6,6 +6,8 @@
 //! * a [simulator](https://www.youtube.com/watch?v=4fFDFbi3toc)
 //! * a [rpc framework](https://forums.foundationdb.org/t/why-was-flow-developed/1711/2) built using the simulator
 //! It will be compatible with both `async-std` and `Tokio`, allowing you to use Circus during development, then switch to your favorite runtime in production.
+//!
+//! Examples can be found in the [examples folder](https://github.com/PierreZ/circus/tree/main/simulation/examples).
 
 pub mod buggify;
 pub mod deterministic;

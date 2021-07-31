@@ -1,4 +1,4 @@
-//! time module
+//! Deterministic time
 use std::time;
 
 #[derive(Debug)]

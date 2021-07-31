@@ -1,4 +1,4 @@
-//! Random module
+//! Deterministic randomness
 use std::ops::Range;
 
 use parking_lot::Mutex;

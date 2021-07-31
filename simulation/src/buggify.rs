@@ -40,7 +40,7 @@ impl Default for Buggifier {
     /// Create a new Buggifier
     fn default() -> Self {
         Buggifier {
-            buggified_lines: Default::default(),
+            buggified_lines: Mutex::new(HashMap::new()),
             random: Default::default(),
         }
     }
@@ -62,6 +62,8 @@ pub fn disable_buggify() {
     tracing::info!("disabling buggify");
     let mut data = BUGGIFIER_INSTANCE.random.lock();
     *data = None;
+    let mut map = BUGGIFIER_INSTANCE.buggified_lines.lock();
+    map.clear();
 }
 
 #[macro_export]
@@ -72,35 +74,74 @@ pub fn disable_buggify() {
 /// 1. Enabled uses of `buggify!` have a 5% chance of evaluating to true
 ///
 /// A good blogpost about buggify can be found [here](https://transactional.blog/simulation/buggify.html).
+///
+/// ## Getting started with `buggify!`
+///
+/// ```rust
+/// extern crate circus_simulation;
+///
+/// use circus_simulation::buggify;
+/// use circus_simulation::buggify::*;
+/// use circus_simulation::deterministic::random::Random;
+/// use tracing::Level;
+///
+/// fn main() {
+///    // init random with a seed
+///    let random = Random::new_with_seed(42);
+///
+///    tracing_subscriber::fmt()
+///        .with_max_level(Level::DEBUG)
+///        .init();
+///
+///    // enables buggify
+///    enable_buggify(random);
+///
+///    for i in 0..10 {
+///        // this block has a 0.05% chance to be run
+///        // which is iteration 8 for seed 42
+///        if buggify!() {
+///            tracing::info!("buggified at iteration {}", i);
+///        }
+///    }
+///
+///    // buggify can also accept a probability
+///    if buggify!(1.0) {
+///        tracing::info!("buggified with a 100% probability!");
+///    }
+/// }
+/// ```
+///
 macro_rules! buggify {
     ($probability:expr) => {{
-        let line = format!("{}:{},{}", file!(), line!(), column!());
+        let line = format!("{}:{}", file!(), line!());
         handle_buggify(line, $probability)
     }};
     () => {{
-        let line = format!("{}:{},{}", file!(), line!(), column!());
+        let line = format!("{}:{}", file!(), line!());
         handle_buggify(line, 0.05)
     }};
 }
 #[cfg(test)]
 mod tests {
 
+    use crate::buggify::BUGGIFIER_INSTANCE;
     use crate::buggify::*;
     use crate::deterministic::random::Random;
-    use parking_lot::Once;
-    use std::borrow::BorrowMut;
-    use std::sync::{MutexGuard, PoisonError};
-    use tracing_subscriber::prelude::*;
-    use tracing_subscriber::{fmt, EnvFilter, Registry};
 
     #[test]
     fn test_macro() {
         assert!(!is_buggify_enabled());
-        for i in 0..9999 {
-            assert!(!buggify!(), "should not buggified");
+        assert!(!buggify!(1.0), "should not buggified");
+
+        {
+            let data = BUGGIFIER_INSTANCE.random.lock();
+            assert!((*data).is_none());
+
+            let map = BUGGIFIER_INSTANCE.buggified_lines.lock();
+            assert!((*map).is_empty());
         }
 
-        let mut random = Random::new_with_seed(42);
+        let random = Random::new_with_seed(42);
         enable_buggify(random);
 
         assert!(is_buggify_enabled(), "should be activated");
@@ -110,6 +151,22 @@ mod tests {
             assert_eq!(buggify!(), result, "{} should have been {}", i, result);
         }
 
-        assert!(buggify!(1.0), "probility of 1.0 should always be fired")
+        {
+            dbg!(&BUGGIFIER_INSTANCE);
+            let data = BUGGIFIER_INSTANCE.random.lock();
+            assert!((*data).is_some());
+
+            let map = BUGGIFIER_INSTANCE.buggified_lines.lock();
+            assert_eq!((*map).len(), 1);
+            for key in (*map).keys() {
+                assert!(key.starts_with("simulation/src/buggify.rs:"));
+            }
+            for value in (*map).values() {
+                assert!(value);
+            }
+        }
+
+        disable_buggify();
+        assert!(!buggify!(1.0), "should not buggified");
     }
 }
