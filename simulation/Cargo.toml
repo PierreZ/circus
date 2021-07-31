@@ -10,8 +10,8 @@ homepage = "https://github.com/PierreZ/circus"
 
 
 include = [
-    "LICENSE-APACHE",
-    "LICENSE-MIT",
+    "../LICENSE-APACHE",
+    "../LICENSE-MIT",
     "README.md",
     ".gitignore",
     "Cargo.toml",
