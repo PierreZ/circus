@@ -2,6 +2,7 @@
 A toolkit to develop distributed systems
 
 ![status](https://img.shields.io/badge/status-experimental-red)
+[![Crates.io Version](https://img.shields.io/crates/v/circus_simulation.svg)](https://crates.io/crates/circus_simulation)
 [![Build status](https://github.com/PierreZ/circus/workflows/Build%20and%20test/badge.svg)](https://github.com/PierreZ/circus/actions)
 [![Coverage Status](https://coveralls.io/repos/github/PierreZ/circus/badge.svg?branch=main)](https://coveralls.io/github/PierreZ/circus?branch=main)
 [![Dependency Status](https://deps.rs/repo/github/PierreZ/circus/status.svg)](https://deps.rs/repo/github/PierreZ/circus)
