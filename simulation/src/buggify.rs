@@ -54,7 +54,7 @@ pub fn is_buggify_enabled() -> bool {
 pub fn enable_buggify(r: Random) {
     tracing::info!("enabling buggify");
     let mut data = BUGGIFIER_INSTANCE.random.lock();
-    *data = Some(r.clone());
+    *data = Some(r);
 }
 
 /// disable buggify

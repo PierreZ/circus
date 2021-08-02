@@ -17,6 +17,11 @@ Highly experimental for now, but the end-goal is to provide some of the helpers 
   
 It will be compatible with both `async-std` and `Tokio`, allowing you to use Circus during development, then switch to your favorite runtime in production.
 
+## Available crates
+
+* [circus-simulation](/simulation) [![Crates.io Version](https://img.shields.io/crates/v/circus_simulation.svg)](https://crates.io/crates/circus_simulation) [![Docs.rs](https://img.shields.io/docsrs/circus_simulation)](https://docs.rs/circus_simulation)
+* [circus-test](/test) [![Crates.io Version](https://img.shields.io/crates/v/circus_test.svg)](https://crates.io/crates/circus_test) [![Docs.rs](https://img.shields.io/docsrs/circus_test)](https://docs.rs/circus_test)
+
 ## Rust version requirements
 
 The MSRV is Rust 1.42.0.

@@ -1,21 +1,27 @@
-# circus-simulation :circus_tent:
-
-A simulation framework, inspired by [FoundationDB](https://foundationdb.org)
+# Circus_test :circus_tent:
 
 ![status](https://img.shields.io/badge/status-experimental-red)
-[![Crates.io Version](https://img.shields.io/crates/v/circus_simulation.svg)](https://crates.io/crates/circus_simulation)
-[![Docs.rs](https://img.shields.io/docsrs/circus_simulation)](https://docs.rs/circus_simulation)
+[![Crates.io Version](https://img.shields.io/crates/v/circus_test.svg)](https://crates.io/crates/circus_test)
+[![Docs.rs](https://img.shields.io/docsrs/circus_test)](https://docs.rs/circus_test)
 [![Build status](https://github.com/PierreZ/circus/workflows/Build%20and%20test/badge.svg)](https://github.com/PierreZ/circus/actions)
 ![License](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue.svg)
 [![Minimum rustc version](https://img.shields.io/badge/rustc-1.42.0+-lightgray.svg)](#rust-version-requirements)
 
+Allow injection of a random seed upon a test. Can be overloaded with environment var `DETERMINISTIC_SEED`.
+
+## Example:
+```rust
+use circus_test::with_random_seed;
+#[with_random_seed]
+#[test]
+fn random_seed(seed: u64) {
+    println!("{}", seed);
+}
+```
+
 ## Rust version requirements
 
 The MSRV is Rust 1.42.0.
-
-## Examples
-
-Examples can be found in the [examples folder](/simulation/examples).
 
 ## License
 
