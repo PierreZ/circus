@@ -4,7 +4,7 @@ use std::time;
 #[derive(Debug)]
 /// A mock source of time, allowing for deterministic control of the progress
 /// of time.
-struct DeterministicTime {
+pub struct DeterministicTime {
     /// Time basis for which mock time is derived.
     base: time::Instant,
     /// The amount of mock time which has elapsed.
@@ -13,7 +13,7 @@ struct DeterministicTime {
 
 impl DeterministicTime {
     /// create a new `DeterministicTime`
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             base: time::Instant::now(),
             advance: time::Duration::from_millis(0),
@@ -21,13 +21,19 @@ impl DeterministicTime {
     }
 
     /// advance of some duration
-    fn advance(&mut self, duration: time::Duration) {
+    pub fn advance(&mut self, duration: time::Duration) {
         self.advance += duration;
     }
 
     /// return base+advance time
-    fn now(&self) -> time::Instant {
+    pub fn now(&self) -> time::Instant {
         self.base + self.advance
+    }
+
+    /// reset time
+    pub fn reset(&mut self) {
+        self.base = time::Instant::now();
+        self.advance = time::Duration::from_millis(0);
     }
 }
 #[cfg(test)]

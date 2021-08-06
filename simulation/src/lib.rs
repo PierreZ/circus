@@ -9,5 +9,7 @@
 //!
 //! Examples can be found in the [examples folder](https://github.com/PierreZ/circus/tree/main/simulation/examples).
 
+use std::sync::Arc;
+
 pub mod buggify;
 pub mod deterministic;
