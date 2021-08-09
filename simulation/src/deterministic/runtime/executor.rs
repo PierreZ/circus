@@ -4,14 +4,16 @@ use crate::deterministic::runtime::reactor::Reactor;
 use crate::deterministic::runtime::task::{Task, TaskId};
 use crossbeam_queue::ArrayQueue;
 use std::collections::BTreeMap;
+use std::net::Shutdown::Read;
 use std::sync::Arc;
 use std::task::{Context, Poll, RawWaker, RawWakerVTable, Wake, Waker};
+use std::thread;
+use std::time::Duration;
 
 pub struct DeterministicExecutor {
     tasks: BTreeMap<TaskId, Task>,
     task_queue: Arc<ArrayQueue<TaskId>>,
     waker_cache: BTreeMap<TaskId, Waker>,
-    reactor: Reactor,
 }
 
 impl DeterministicExecutor {
@@ -20,7 +22,6 @@ impl DeterministicExecutor {
             tasks: BTreeMap::new(),
             task_queue: Arc::new(ArrayQueue::new(100)),
             waker_cache: BTreeMap::new(),
-            reactor: Reactor::default(),
         }
     }
 
@@ -28,16 +29,24 @@ impl DeterministicExecutor {
         loop {
             self.run_ready_tasks();
 
-            if self.task_queue.is_empty() {
-                // we have nothing to do here, we can advance simulation
-                self.reactor.advance_simulation();
-            }
             if self.waker_cache.is_empty() && self.task_queue.is_empty() && self.tasks.is_empty() {
                 break;
             }
+
+            if self.task_queue.is_empty() {
+                // we have nothing to do here, we can advance simulation
+                match Reactor::get().advance_simulation() {
+                    None => unreachable!("simulation should always be able to advance"),
+                    Some(duration) => tracing::trace!("advanced simulation for {:?}", duration),
+                }
+            }
+
+            // useful to debug
+            thread::sleep(Duration::from_secs(1));
         }
     }
     pub fn spawn(&mut self, task: Task) {
+        tracing::trace!("adding task {:?}", task.id);
         let task_id = task.id;
         if self.tasks.insert(task.id, task).is_some() {
             panic!("task with same ID already in tasks");
@@ -51,7 +60,6 @@ impl DeterministicExecutor {
             tasks,
             task_queue,
             waker_cache,
-            reactor,
         } = self;
 
         while let Some(task_id) = task_queue.pop() {
@@ -65,6 +73,7 @@ impl DeterministicExecutor {
             let mut context = Context::from_waker(waker);
             match task.poll(&mut context) {
                 Poll::Ready(()) => {
+                    tracing::trace!("removing task {:?}", task_id);
                     // task done -> remove it and its cached waker
                     tasks.remove(&task_id);
                     waker_cache.remove(&task_id);
@@ -88,6 +97,7 @@ impl TaskWaker {
         }))
     }
     fn wake_task(&self) {
+        tracing::trace!("waking task {:?}", self.task_id);
         self.task_queue.push(self.task_id).expect("task_queue full");
     }
 }

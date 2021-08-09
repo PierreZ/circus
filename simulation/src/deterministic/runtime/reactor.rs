@@ -1,60 +1,75 @@
 //! Reactor module
 
+use crate::buggify::disable_buggify;
 use crate::deterministic::runtime::executor::TaskWaker;
 use crate::deterministic::time::DeterministicTime;
+use crossbeam_queue::ArrayQueue;
 use once_cell::sync::Lazy;
+use parking_lot::Mutex;
 use std::cmp::Ordering;
 use std::sync::Arc;
 use std::task::{Wake, Waker};
 use std::time::{Duration, Instant};
 
+#[derive(Clone)]
 pub struct Reactor {
     time: DeterministicTime,
-    waits: Vec<ReactorEntry>,
+    waits: Arc<Mutex<Vec<ReactorEntry>>>,
 }
 
 impl Default for Reactor {
     fn default() -> Reactor {
         Reactor {
             time: DeterministicTime::new(),
-            waits: vec![],
+            waits: Arc::new(Mutex::new(vec![])),
         }
     }
 }
 
 impl Reactor {
-    pub fn register_wait(&mut self, duration: Duration, waker: Arc<TaskWaker>) {
-        self.waits.push(ReactorEntry::new(duration, waker));
+    /// Returns a reference to the reactor.
+    pub(crate) fn get() -> &'static Reactor {
+        static REACTOR: Lazy<Reactor> = Lazy::new(|| Reactor::default());
+        &REACTOR
+    }
+
+    pub fn get_deterministic_time(&self) -> DeterministicTime {
+        self.time.clone()
+    }
+
+    pub fn register_wait(&self, duration: Duration, waker: Waker) {
+        tracing::trace!("registering a wait for {:?}", duration);
+        self.waits.lock().push(ReactorEntry::new(duration, waker));
     }
 
     /// Advancing simulation. It will chose the next Instant stored in  `waits` and apply it
     /// on the deterministicTime.
-    pub fn advance_simulation(&mut self) -> Option<Duration> {
-        if !self.waits.is_empty() {
-            // sorting waits per duration
-            self.waits.sort();
+    pub fn advance_simulation(&self) -> Option<Duration> {
+        let mut lock = self.waits.lock();
+        if !lock.is_empty() {
+            // sort entry per duration
+            lock.sort();
 
-            // get first
-            match self.waits.first() {
-                None => {}
-                Some(entry) => {
-                    self.time.advance(entry.duration);
-                    entry.waker.clone().wake();
-                }
-            }
+            // get next wait
+            let next = lock.remove(0);
+
+            tracing::trace!("advancing from {:?}", next.duration);
+            self.time.advance(next.duration);
+            next.waker.wake();
+            Some(next.duration)
+        } else {
+            None
         }
-
-        None
     }
 }
 
 struct ReactorEntry {
     duration: Duration,
-    waker: Arc<TaskWaker>,
+    waker: Waker,
 }
 
 impl ReactorEntry {
-    pub fn new(duration: Duration, waker: Arc<TaskWaker>) -> ReactorEntry {
+    pub fn new(duration: Duration, waker: Waker) -> ReactorEntry {
         ReactorEntry { duration, waker }
     }
 }
