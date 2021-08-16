@@ -5,7 +5,7 @@
 [![Docs.rs](https://img.shields.io/docsrs/circus_test)](https://docs.rs/circus_test)
 [![Build status](https://github.com/PierreZ/circus/workflows/Build%20and%20test/badge.svg)](https://github.com/PierreZ/circus/actions)
 ![License](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue.svg)
-[![Minimum rustc version](https://img.shields.io/badge/rustc-1.42.0+-lightgray.svg)](#rust-version-requirements)
+[![Minimum rustc version](https://img.shields.io/badge/rustc-1.51.0+-lightgray.svg)](#rust-version-requirements)
 
 Allow injection of a random seed upon a test. Can be overloaded with environment var `DETERMINISTIC_SEED`.
 
@@ -21,7 +21,7 @@ fn random_seed(seed: u64) {
 
 ## Rust version requirements
 
-The MSRV is Rust 1.42.0.
+The MSRV is Rust 1.51.0.
 
 ## License
 
