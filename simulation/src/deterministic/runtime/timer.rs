@@ -1,15 +1,15 @@
 //! Timer module
 
-use crate::deterministic::runtime::reactor::Reactor;
+use crate::deterministic::runtime::reactor::DeterministicReactor;
 use crate::deterministic::time::DeterministicTime;
 use futures::Future;
-use std::mem::align_of;
 use std::ops::Add;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
 
-pub struct Timer {
+/// A timer that can be used in simulation
+pub struct DeterministicTimer {
     time: DeterministicTime,
     duration: Duration,
     expired_at: Instant,
@@ -17,9 +17,10 @@ pub struct Timer {
     already_registered: bool,
 }
 
-impl Timer {
-    pub fn wait(time: DeterministicTime, duration: Duration) -> Timer {
-        Timer {
+impl DeterministicTimer {
+    /// Wait in simulation
+    pub fn wait(time: DeterministicTime, duration: Duration) -> DeterministicTimer {
+        DeterministicTimer {
             time: time.clone(),
             duration,
             expired_at: time.now().add(duration),
@@ -29,7 +30,7 @@ impl Timer {
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
         if !self.already_registered {
-            Reactor::get().register_wait(self.duration.clone(), cx.waker().clone());
+            DeterministicReactor::get().register_wait(self.duration, cx.waker().clone());
             self.already_registered = true;
         }
 
@@ -44,7 +45,7 @@ impl Timer {
     }
 }
 
-impl Future for Timer {
+impl Future for DeterministicTimer {
     type Output = ();
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
@@ -55,15 +56,15 @@ impl Future for Timer {
 #[cfg(test)]
 mod tests {
     use crate::deterministic::runtime::executor::DeterministicExecutor;
-    use crate::deterministic::runtime::reactor::Reactor;
+    use crate::deterministic::runtime::reactor::DeterministicReactor;
     use crate::deterministic::runtime::task::Task;
-    use crate::deterministic::runtime::timer::Timer;
+    use crate::deterministic::runtime::timer::DeterministicTimer;
     use crate::deterministic::time::DeterministicTime;
     use std::time::{Duration, Instant};
     use tracing::Level;
 
     async fn example_task(time: DeterministicTime, duration: Duration) {
-        Timer::wait(time, duration.clone()).await;
+        DeterministicTimer::wait(time, duration.clone()).await;
         println!("waited for {:?}", duration);
     }
 
@@ -76,7 +77,7 @@ mod tests {
         let mut executor = DeterministicExecutor::new();
         // retrieve global timer created by the reactor
         // TODO: find a better way?
-        let mut time = Reactor::get().get_deterministic_time();
+        let mut time = DeterministicReactor::get().get_deterministic_time();
 
         // spawning a future
         executor.spawn(Task::new(example_task(

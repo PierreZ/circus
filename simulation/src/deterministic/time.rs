@@ -10,6 +10,7 @@ pub struct DeterministicTime {
     inner: Arc<Mutex<Inner>>,
 }
 
+#[doc(hidden)]
 #[derive(Debug)]
 pub struct Inner {
     /// Time basis for which mock time is derived.
@@ -19,11 +20,24 @@ pub struct Inner {
 }
 
 impl Inner {
+    /// create a new Inner
     pub fn new() -> Self {
         Self {
             base: time::Instant::now(),
             advance: time::Duration::from_millis(0),
         }
+    }
+}
+
+impl Default for Inner {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Default for DeterministicTime {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

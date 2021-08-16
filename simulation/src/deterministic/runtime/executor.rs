@@ -1,22 +1,32 @@
 //! Executor module
 
-use crate::deterministic::runtime::reactor::Reactor;
+use crate::deterministic::runtime::reactor::DeterministicReactor;
 use crate::deterministic::runtime::task::{Task, TaskId};
 use crossbeam_queue::ArrayQueue;
 use std::collections::BTreeMap;
-use std::net::Shutdown::Read;
 use std::sync::Arc;
-use std::task::{Context, Poll, RawWaker, RawWakerVTable, Wake, Waker};
+use std::task::{Context, Poll, Wake, Waker};
 use std::thread;
 use std::time::Duration;
 
+/// A deterministic, single-threaded executor that can be used in simulation mode.
+/// Combined with the [`DeterministicReactor`], this is allowing developers to pull and schedule
+/// futures in a deterministic way.
+/// This has been developed by reading [this blogpost](https://os.phil-opp.com/async-await/#executor-with-waker-support).
 pub struct DeterministicExecutor {
     tasks: BTreeMap<TaskId, Task>,
     task_queue: Arc<ArrayQueue<TaskId>>,
     waker_cache: BTreeMap<TaskId, Waker>,
 }
 
+impl Default for DeterministicExecutor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DeterministicExecutor {
+    /// creates a new Executor
     pub fn new() -> Self {
         DeterministicExecutor {
             tasks: BTreeMap::new(),
@@ -25,6 +35,7 @@ impl DeterministicExecutor {
         }
     }
 
+    /// main blocking loop, that will poll every registered futures.
     pub fn run(&mut self) {
         loop {
             self.run_ready_tasks();
@@ -35,7 +46,7 @@ impl DeterministicExecutor {
 
             if self.task_queue.is_empty() {
                 // we have nothing to do here, we can advance simulation
-                match Reactor::get().advance_simulation() {
+                match DeterministicReactor::get().advance_simulation() {
                     None => unreachable!("simulation should always be able to advance"),
                     Some(duration) => tracing::trace!("advanced simulation for {:?}", duration),
                 }
@@ -45,6 +56,8 @@ impl DeterministicExecutor {
             thread::sleep(Duration::from_secs(1));
         }
     }
+
+    /// register a task
     pub fn spawn(&mut self, task: Task) {
         tracing::trace!("adding task {:?}", task.id);
         let task_id = task.id;
@@ -69,7 +82,7 @@ impl DeterministicExecutor {
             };
             let waker = waker_cache
                 .entry(task_id)
-                .or_insert_with(|| TaskWaker::new(task_id, task_queue.clone()));
+                .or_insert_with(|| TaskWaker::new_waker(task_id, task_queue.clone()));
             let mut context = Context::from_waker(waker);
             match task.poll(&mut context) {
                 Poll::Ready(()) => {
@@ -84,13 +97,15 @@ impl DeterministicExecutor {
     }
 }
 
+/// TaskWaker implements `Waker`
 pub struct TaskWaker {
     task_id: TaskId,
     task_queue: Arc<ArrayQueue<TaskId>>,
 }
 
 impl TaskWaker {
-    pub fn new(task_id: TaskId, task_queue: Arc<ArrayQueue<TaskId>>) -> Waker {
+    /// create a new TaskWaker
+    pub fn new_waker(task_id: TaskId, task_queue: Arc<ArrayQueue<TaskId>>) -> Waker {
         Waker::from(Arc::new(TaskWaker {
             task_id,
             task_queue,

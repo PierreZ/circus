@@ -1,42 +1,46 @@
 //! Reactor module
 
-use crate::buggify::disable_buggify;
-use crate::deterministic::runtime::executor::TaskWaker;
 use crate::deterministic::time::DeterministicTime;
-use crossbeam_queue::ArrayQueue;
 use once_cell::sync::Lazy;
 use parking_lot::Mutex;
 use std::cmp::Ordering;
 use std::sync::Arc;
-use std::task::{Wake, Waker};
-use std::time::{Duration, Instant};
+use std::task::Waker;
+use std::time::Duration;
 
+/// The DeterministicReactor is used to simulate "real I/O". It is only compatible with
+/// simulation structures, as they cooperate with him. Instead of registering I/O to a loop,
+/// simulation structures can only register timers. When the runtime cannot make any futures advances,
+/// we can choose the smallest wait in the list and "advance time".
 #[derive(Clone)]
-pub struct Reactor {
+pub struct DeterministicReactor {
     time: DeterministicTime,
     waits: Arc<Mutex<Vec<ReactorEntry>>>,
 }
 
-impl Default for Reactor {
-    fn default() -> Reactor {
-        Reactor {
+impl Default for DeterministicReactor {
+    /// Create a default `DeterministicReactor`
+    fn default() -> DeterministicReactor {
+        DeterministicReactor {
             time: DeterministicTime::new(),
             waits: Arc::new(Mutex::new(vec![])),
         }
     }
 }
 
-impl Reactor {
+impl DeterministicReactor {
     /// Returns a reference to the reactor.
-    pub(crate) fn get() -> &'static Reactor {
-        static REACTOR: Lazy<Reactor> = Lazy::new(|| Reactor::default());
+    pub(crate) fn get() -> &'static DeterministicReactor {
+        static REACTOR: Lazy<DeterministicReactor> = Lazy::new(DeterministicReactor::default);
         &REACTOR
     }
 
+    /// Returns the deterministic time used by the static reactor
     pub fn get_deterministic_time(&self) -> DeterministicTime {
         self.time.clone()
     }
 
+    /// Register a wait
     pub fn register_wait(&self, duration: Duration, waker: Waker) {
         tracing::trace!("registering a wait for {:?}", duration);
         self.waits.lock().push(ReactorEntry::new(duration, waker));
@@ -63,6 +67,7 @@ impl Reactor {
     }
 }
 
+#[doc(hidden)]
 struct ReactorEntry {
     duration: Duration,
     waker: Waker,
@@ -83,10 +88,6 @@ impl PartialOrd for ReactorEntry {
 impl PartialEq for ReactorEntry {
     fn eq(&self, other: &Self) -> bool {
         self.duration.eq(&other.duration)
-    }
-
-    fn ne(&self, other: &Self) -> bool {
-        self.duration.ne(&other.duration)
     }
 }
 

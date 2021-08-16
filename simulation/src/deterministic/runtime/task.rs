@@ -4,6 +4,7 @@ use core::{future::Future, pin::Pin};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::task::{Context, Poll};
 
+/// TaskID
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TaskId(u64);
 
@@ -14,12 +15,14 @@ impl TaskId {
     }
 }
 
+/// An async Task
 pub struct Task {
     pub(crate) id: TaskId,
     future: Pin<Box<dyn Future<Output = ()>>>,
 }
 
 impl Task {
+    /// Creates a new task
     pub fn new(future: impl Future<Output = ()> + 'static) -> Task {
         Task {
             id: TaskId::new(),
@@ -27,7 +30,8 @@ impl Task {
         }
     }
 
-    pub(crate) fn poll(&mut self, context: &mut Context) -> Poll<()> {
+    /// Implement poll
+    pub(crate) fn poll(&mut self, context: &mut Context<'_>) -> Poll<()> {
         self.future.as_mut().poll(context)
     }
 }
