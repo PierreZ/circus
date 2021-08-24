@@ -19,6 +19,7 @@ pub struct DeterministicTimer {
 
 impl DeterministicTimer {
     /// Wait in simulation
+    #[allow(dead_code)]
     pub fn wait(time: DeterministicTime, duration: Duration) -> DeterministicTimer {
         DeterministicTimer {
             time: time.clone(),
@@ -47,7 +48,6 @@ impl DeterministicTimer {
 
 impl Future for DeterministicTimer {
     type Output = ();
-
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         self.poll_next(cx)
     }
@@ -70,14 +70,15 @@ mod tests {
 
     #[test]
     fn test_timer() {
-        tracing_subscriber::fmt()
+        let _ = tracing_subscriber::fmt()
             .with_max_level(Level::TRACE)
-            .init();
+            .with_test_writer()
+            .try_init();
 
         let mut executor = DeterministicExecutor::new();
         // retrieve global timer created by the reactor
         // TODO: find a better way?
-        let mut time = DeterministicReactor::get().get_deterministic_time();
+        let time = DeterministicReactor::get().get_deterministic_time();
 
         // spawning a future
         executor.spawn(Task::new(example_task(

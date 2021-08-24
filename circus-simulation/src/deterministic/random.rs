@@ -12,20 +12,7 @@ pub struct Random {
     inner: Arc<Mutex<rand::rngs::SmallRng>>,
 }
 
-impl Default for Random {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Random {
-    /// create a non-deterministic random
-    pub fn new() -> Self {
-        Random {
-            inner: Arc::new(Mutex::new(rand::rngs::SmallRng::from_entropy())),
-        }
-    }
-
     /// create a deterministic random given a seed
     pub fn new_with_seed(seed: u64) -> Self {
         Random {
@@ -65,6 +52,8 @@ mod tests {
                         a.random_between(range.clone()),
                         b.random_between(range.clone())
                     );
+                    assert_eq!(a.random_01(), b.random_01());
+                    assert_eq!(a.random_boolean(0.5), b.random_boolean(0.5));
                 }
             }
         }

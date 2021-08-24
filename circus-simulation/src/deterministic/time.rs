@@ -10,9 +10,8 @@ pub struct DeterministicTime {
     inner: Arc<Mutex<Inner>>,
 }
 
-#[doc(hidden)]
 #[derive(Debug)]
-pub struct Inner {
+struct Inner {
     /// Time basis for which mock time is derived.
     base: time::Instant,
     /// The amount of mock time which has elapsed.
@@ -45,7 +44,7 @@ impl DeterministicTime {
     /// create a new `DeterministicTime`
     pub fn new() -> Self {
         Self {
-            inner: Arc::from(Mutex::new(Inner::new())),
+            inner: Arc::from(Mutex::new(Inner::default())),
         }
     }
 
@@ -76,7 +75,7 @@ mod tests {
 
     #[test]
     fn deterministic_random() {
-        let mut time = DeterministicTime::new();
+        let mut time = DeterministicTime::default();
         let now = time::Instant::now();
         time.inner.lock().base = now.clone();
 
@@ -85,5 +84,9 @@ mod tests {
             assert_eq!(now.add(Duration::from_secs(i * 1)), time.now());
             assert_eq!(time.inner.lock().base, now);
         }
+
+        time.reset();
+        assert!(!time.inner.lock().base.eq(&now));
+        dbg!(&time);
     }
 }
