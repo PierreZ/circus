@@ -6,7 +6,7 @@ A toolkit to develop distributed systems
 [![Coverage Status](https://coveralls.io/repos/github/PierreZ/circus/badge.svg?branch=main)](https://coveralls.io/github/PierreZ/circus?branch=main)
 [![Dependency Status](https://deps.rs/repo/github/PierreZ/circus/status.svg)](https://deps.rs/repo/github/PierreZ/circus)
 ![License](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue.svg)
-[![Minimum rustc version](https://img.shields.io/badge/rustc-1.42.0+-lightgray.svg)](#rust-version-requirements)
+[![Minimum rustc version](https://img.shields.io/badge/rustc-1.51.0+-lightgray.svg)](#rust-version-requirements)
 
 ## Overview
 
@@ -19,12 +19,12 @@ It will be compatible with both `async-std` and `Tokio`, allowing you to use Cir
 
 ## Available crates
 
-* [circus-simulation](/simulation) [![Crates.io Version](https://img.shields.io/crates/v/circus_simulation.svg)](https://crates.io/crates/circus_simulation) [![Docs.rs](https://img.shields.io/docsrs/circus_simulation)](https://docs.rs/circus_simulation)
-* [circus-test](/test) [![Crates.io Version](https://img.shields.io/crates/v/circus_test.svg)](https://crates.io/crates/circus_test) [![Docs.rs](https://img.shields.io/docsrs/circus_test)](https://docs.rs/circus_test)
+* [circus-simulation](/circus-simulation) [![Crates.io Version](https://img.shields.io/crates/v/circus_simulation.svg)](https://crates.io/crates/circus_simulation) [![Docs.rs](https://img.shields.io/docsrs/circus_simulation)](https://docs.rs/circus_simulation)
+* [circus-test](/circus-test) [![Crates.io Version](https://img.shields.io/crates/v/circus_test.svg)](https://crates.io/crates/circus_test) [![Docs.rs](https://img.shields.io/docsrs/circus_test)](https://docs.rs/circus_test)
 
 ## Rust version requirements
 
-The MSRV is Rust 1.42.0.
+The MSRV is Rust 1.51.0.
 
 ## Examples
 
