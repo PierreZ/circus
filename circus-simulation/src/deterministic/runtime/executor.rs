@@ -130,7 +130,14 @@ impl Wake for TaskWaker {
 #[cfg(test)]
 mod tests {
     use crate::deterministic::runtime::executor::DeterministicExecutor;
+    use crate::deterministic::runtime::reactor::DeterministicReactor;
     use crate::deterministic::runtime::task::Task;
+    use crate::deterministic::runtime::timer::DeterministicTimer;
+    use crate::deterministic::time::DeterministicTime;
+    use parking_lot::RwLock;
+    use std::sync::Arc;
+    use std::time::{Duration, Instant};
+    use tracing::Level;
 
     async fn async_number() -> u32 {
         42
@@ -146,5 +153,53 @@ mod tests {
         let mut executor = DeterministicExecutor::new();
         executor.spawn(Task::new(example_task()));
         executor.run();
+    }
+
+    async fn example_state_task(
+        time: DeterministicTime,
+        duration: Duration,
+        state: Arc<RwLock<Vec<(Duration, Instant, Instant)>>>,
+    ) {
+        DeterministicTimer::wait(time.clone(), duration.clone()).await;
+        println!("waited for {:?}", duration);
+        state
+            .write()
+            .push((duration.clone(), time.now(), Instant::now()));
+    }
+
+    #[test]
+    fn test_ordering_executor() {
+        let _ = tracing_subscriber::fmt()
+            .with_max_level(Level::TRACE)
+            .with_test_writer()
+            .try_init();
+
+        let mut executor = DeterministicExecutor::new();
+        // retrieve global timer created by the reactor
+        // TODO: find a better way?
+        let time = DeterministicReactor::get().get_deterministic_time();
+
+        let state = Arc::new(RwLock::new(Vec::new()));
+
+        // spawning a future with a timer, starting from 9min to 1min
+        for i in (1..10).rev() {
+            executor.spawn(Task::new(example_state_task(
+                time.clone(),
+                Duration::from_secs(i * 60),
+                state.clone(),
+            )));
+        }
+        executor.run();
+
+        for (i, trigger) in state.read().iter().enumerate() {
+            let (duration, faked_time, real_time) = trigger;
+            assert_eq!(duration.as_secs(), ((i + 1) * 60) as u64);
+            assert!(
+                faked_time > real_time,
+                "expecting faked time{:?} to be after {:?}",
+                faked_time,
+                real_time
+            );
+        }
     }
 }

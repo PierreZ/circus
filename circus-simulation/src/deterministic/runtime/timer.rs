@@ -95,34 +95,4 @@ mod tests {
             &Instant::now()
         );
     }
-
-    #[test]
-    fn test_order_timer() {
-        let _ = tracing_subscriber::fmt()
-            .with_max_level(Level::TRACE)
-            .with_test_writer()
-            .try_init();
-
-        let mut executor = DeterministicExecutor::new();
-        // retrieve global timer created by the reactor
-        // TODO: find a better way?
-        let time = DeterministicReactor::get().get_deterministic_time();
-
-        // spawning a future
-        for i in 1..10 {
-            executor.spawn(Task::new(example_task(
-                time.clone(),
-                // waiting for 30 years in simulation
-                Duration::from_secs(i),
-            )));
-        }
-        executor.run();
-
-        assert!(
-            time.now().gt(&Instant::now()),
-            "simulated time {:?} is not greater than now {:?}",
-            time.now(),
-            &Instant::now()
-        );
-    }
 }
