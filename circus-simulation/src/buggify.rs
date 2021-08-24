@@ -13,7 +13,7 @@ pub struct Buggifier {
 }
 
 #[doc(hidden)]
-pub static BUGGIFIER_INSTANCE: Lazy<Buggifier> = Lazy::new(Buggifier::default);
+pub static BUGGIFIER_INSTANCE: Lazy<Buggifier> = Lazy::new(|| Buggifier::default());
 
 #[doc(hidden)]
 pub fn handle_buggify(line: String, probability: f64) -> bool {
