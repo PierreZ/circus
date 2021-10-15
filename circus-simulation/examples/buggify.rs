@@ -1,7 +1,7 @@
 extern crate circus_simulation;
 
 use circus_simulation::buggify::{buggifier, Buggifier};
-use circus_simulation::deterministic::random::Random;
+use circus_simulation::deterministic::random::DeterministicRandom;
 use tracing::Level;
 
 fn main() {
@@ -13,7 +13,7 @@ fn main() {
     let b = Buggifier::default();
 
     // init random with a seed
-    let random = Random::new_with_seed(42);
+    let random = DeterministicRandom::new_with_seed(42);
 
     // enables buggify
     b.enable_buggify(random);
@@ -32,7 +32,7 @@ fn main() {
     }
 
     // you can also get a static buggifier that needs to be enabled
-    buggifier().enable_buggify(Random::new_with_seed(42));
+    buggifier().enable_buggify(DeterministicRandom::new_with_seed(42));
     if buggifier().buggify_with_prob(1.00) {
         tracing::info!("buggified with a 100% probability!");
     }

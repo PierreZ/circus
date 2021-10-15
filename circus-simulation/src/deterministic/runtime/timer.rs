@@ -15,23 +15,30 @@ pub struct DeterministicTimer {
     expired_at: Instant,
     // TODO: Once
     already_registered: bool,
+    reactor: DeterministicReactor,
 }
 
 impl DeterministicTimer {
     /// Wait in simulation
     #[allow(dead_code)]
-    pub fn wait(time: DeterministicTime, duration: Duration) -> DeterministicTimer {
+    pub fn wait_with_reactor(
+        time: DeterministicTime,
+        reactor: DeterministicReactor,
+        duration: Duration,
+    ) -> DeterministicTimer {
         DeterministicTimer {
             time: time.clone(),
             duration,
             expired_at: time.now().add(duration),
             already_registered: false,
+            reactor,
         }
     }
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
         if !self.already_registered {
-            DeterministicReactor::get().register_wait(self.duration, cx.waker().clone());
+            self.reactor
+                .register_wait(self.duration, cx.waker().clone());
             self.already_registered = true;
         }
 
@@ -63,8 +70,12 @@ mod tests {
     use std::time::{Duration, Instant};
     use tracing::Level;
 
-    async fn example_task(time: DeterministicTime, duration: Duration) {
-        DeterministicTimer::wait(time, duration.clone()).await;
+    async fn example_task(
+        reactor: DeterministicReactor,
+        time: DeterministicTime,
+        duration: Duration,
+    ) {
+        DeterministicTimer::wait_with_reactor(time, reactor, duration).await;
         println!("waited for {:?}", duration);
     }
 
@@ -75,13 +86,13 @@ mod tests {
             .with_test_writer()
             .try_init();
 
-        let mut executor = DeterministicExecutor::new();
-        // retrieve global timer created by the reactor
-        // TODO: find a better way?
-        let time = DeterministicReactor::get().get_deterministic_time();
+        let reactor = DeterministicReactor::default();
+        let mut executor = DeterministicExecutor::new_with_reactor(reactor.clone());
+        let time = reactor.get_deterministic_time();
 
         // spawning a future
         executor.spawn(Task::new(example_task(
+            reactor,
             time.clone(),
             // waiting for 30 years in simulation
             Duration::from_secs(60 * 24 * 31 * 12 * 30),

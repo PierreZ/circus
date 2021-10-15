@@ -11,7 +11,7 @@ A toolkit to develop distributed systems
 ## Overview
 
 A sets of crates that will provide toolboxes to create distributed systems in Rust.
-Highly experimental for now, but the end-goal is to provide some of the helpers that the [FoundationDB's developers](https://www.foundationdb.org/) have:
+Highly experimental for now, but the end-goal is to provide some helpers that the [FoundationDB's developers](https://www.foundationdb.org/) have:
 * a [simulator](https://www.youtube.com/watch?v=4fFDFbi3toc)
 * a [rpc framework](https://forums.foundationdb.org/t/why-was-flow-developed/1711/2) built using the simulator.
   
@@ -28,7 +28,7 @@ The MSRV is Rust 1.51.0.
 
 ## Examples
 
-Examples can be found in the [examples folder](simulation/examples).
+Examples can be found in the [examples folder](circus-simulation/examples).
 
 ## License
 

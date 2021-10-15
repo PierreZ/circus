@@ -30,6 +30,7 @@ impl Default for DeterministicReactor {
 
 impl DeterministicReactor {
     /// Returns a reference to the reactor.
+    #[allow(dead_code)]
     pub(crate) fn get() -> &'static DeterministicReactor {
         static REACTOR: Lazy<DeterministicReactor> = Lazy::new(DeterministicReactor::default);
         &REACTOR
@@ -125,6 +126,11 @@ mod tests {
         fn wake_by_ref(self: &Arc<Self>) {
             self.triggered.store(true, Ordering::Relaxed);
         }
+    }
+    #[test]
+    fn test_static_reactor() {
+        let reactor = DeterministicReactor::get();
+        assert_eq!(reactor.advance_simulation(), None);
     }
 
     #[test]
