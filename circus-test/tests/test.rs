@@ -17,5 +17,5 @@ fn with_seed(seed: u64) {
 #[test]
 #[ignore]
 fn ignored_test(_seed: u64) {
-    assert!(false);
+    unreachable!("test should not be executed");
 }

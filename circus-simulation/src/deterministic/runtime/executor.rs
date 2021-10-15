@@ -6,8 +6,6 @@ use crossbeam_queue::ArrayQueue;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::task::{Context, Poll, Wake, Waker};
-use std::thread;
-use std::time::Duration;
 
 /// A deterministic, single-threaded executor that can be used in simulation mode.
 /// Combined with the [`DeterministicReactor`], this is allowing developers to pull and schedule
@@ -17,6 +15,7 @@ pub struct DeterministicExecutor {
     tasks: BTreeMap<TaskId, Task>,
     task_queue: Arc<ArrayQueue<TaskId>>,
     waker_cache: BTreeMap<TaskId, Waker>,
+    reactor: DeterministicReactor,
 }
 
 impl Default for DeterministicExecutor {
@@ -26,12 +25,22 @@ impl Default for DeterministicExecutor {
 }
 
 impl DeterministicExecutor {
-    /// creates a new Executor
+    /// create a new deterministic executor
+    pub fn new_with_reactor(reactor: DeterministicReactor) -> Self {
+        DeterministicExecutor {
+            tasks: BTreeMap::new(),
+            task_queue: Arc::new(ArrayQueue::new(100)),
+            waker_cache: BTreeMap::new(),
+            reactor,
+        }
+    }
+    /// creates a new Executor with a global Reactor
     pub fn new() -> Self {
         DeterministicExecutor {
             tasks: BTreeMap::new(),
             task_queue: Arc::new(ArrayQueue::new(100)),
             waker_cache: BTreeMap::new(),
+            reactor: DeterministicReactor::default(),
         }
     }
 
@@ -46,14 +55,14 @@ impl DeterministicExecutor {
 
             if self.task_queue.is_empty() {
                 // we have nothing to do here, we can advance simulation
-                match DeterministicReactor::get().advance_simulation() {
+                match self.reactor.advance_simulation() {
                     None => unreachable!("simulation should always be able to advance"),
                     Some(duration) => tracing::trace!("advanced simulation for {:?}", duration),
                 }
             }
 
             // useful to debug
-            thread::sleep(Duration::from_secs(1));
+            // thread::sleep(Duration::from_secs(1));
         }
     }
 
@@ -73,6 +82,7 @@ impl DeterministicExecutor {
             tasks,
             task_queue,
             waker_cache,
+            reactor: _,
         } = self;
 
         while let Some(task_id) = task_queue.pop() {
@@ -156,15 +166,14 @@ mod tests {
     }
 
     async fn example_state_task(
+        reactor: DeterministicReactor,
         time: DeterministicTime,
         duration: Duration,
         state: Arc<RwLock<Vec<(Duration, Instant, Instant)>>>,
     ) {
-        DeterministicTimer::wait(time.clone(), duration.clone()).await;
+        DeterministicTimer::wait_with_reactor(time.clone(), reactor, duration).await;
         println!("waited for {:?}", duration);
-        state
-            .write()
-            .push((duration.clone(), time.now(), Instant::now()));
+        state.write().push((duration, time.now(), Instant::now()));
     }
 
     #[test]
@@ -174,16 +183,17 @@ mod tests {
             .with_test_writer()
             .try_init();
 
-        let mut executor = DeterministicExecutor::new();
-        // retrieve global timer created by the reactor
-        // TODO: find a better way?
-        let time = DeterministicReactor::get().get_deterministic_time();
+        let reactor = DeterministicReactor::default();
+
+        let mut executor = DeterministicExecutor::new_with_reactor(reactor.clone());
+        let time = reactor.get_deterministic_time();
 
         let state = Arc::new(RwLock::new(Vec::new()));
 
         // spawning a future with a timer, starting from 9min to 1min
         for i in (1..10).rev() {
             executor.spawn(Task::new(example_state_task(
+                reactor.clone(),
                 time.clone(),
                 Duration::from_secs(i * 60),
                 state.clone(),

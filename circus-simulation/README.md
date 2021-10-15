@@ -15,14 +15,14 @@ The MSRV is Rust 1.51.0.
 
 ## Examples
 
-Examples can be found in the [examples folder](/simulation/examples).
+Examples can be found in the [examples folder](/circus-simulation/examples).
 
 ## License
 
 Licensed under either of
 
-* Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-* MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+* Apache License, Version 2.0 ([LICENSE-APACHE](/LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+* MIT license ([LICENSE-MIT](/LICENSE-MIT) or http://opensource.org/licenses/MIT)
 
 at your option.
 

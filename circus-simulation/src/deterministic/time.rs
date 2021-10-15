@@ -77,11 +77,11 @@ mod tests {
     fn deterministic_random() {
         let mut time = DeterministicTime::default();
         let now = time::Instant::now();
-        time.inner.lock().base = now.clone();
+        time.inner.lock().base = now;
 
         for i in 1..1000 {
             time.advance(Duration::from_secs(1));
-            assert_eq!(now.add(Duration::from_secs(i * 1)), time.now());
+            assert_eq!(now.add(Duration::from_secs(i)), time.now());
             assert_eq!(time.inner.lock().base, now);
         }
 

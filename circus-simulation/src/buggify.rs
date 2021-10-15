@@ -1,5 +1,5 @@
 //! Inject failure with buggify
-use crate::deterministic::random::Random;
+use crate::deterministic::random::DeterministicRandom;
 use parking_lot::Mutex;
 use std::collections::HashMap;
 
@@ -19,10 +19,18 @@ use std::panic::Location;
 #[derive(Debug)]
 pub struct Buggifier {
     buggified_lines: Mutex<HashMap<String, bool>>,
-    random: Mutex<Option<Random>>,
+    random: Mutex<Option<DeterministicRandom>>,
 }
 
 impl Buggifier {
+    /// create a new Buggifier
+    pub fn new(r: DeterministicRandom) -> Self {
+        Buggifier {
+            buggified_lines: Mutex::new(HashMap::new()),
+            random: Mutex::new(Some(r)),
+        }
+    }
+
     #[track_caller]
     /// `buggify` will returns true only once per execution with a probability of 0.05.
     pub fn buggify(&self) -> bool {
@@ -64,7 +72,7 @@ impl Buggifier {
     }
 
     /// enables buggify by giving a random source
-    pub fn enable_buggify(&self, r: Random) {
+    pub fn enable_buggify(&self, r: DeterministicRandom) {
         tracing::info!("enabling buggify");
         let mut data = self.random.lock();
         *data = Some(r);
@@ -85,7 +93,7 @@ impl Default for Buggifier {
     fn default() -> Self {
         Buggifier {
             buggified_lines: Mutex::new(HashMap::new()),
-            random: Default::default(),
+            random: Mutex::new(None),
         }
     }
 }
@@ -102,7 +110,7 @@ pub fn buggifier() -> &'static Buggifier {
 #[cfg(test)]
 mod tests {
     use crate::buggify::{buggifier, Buggifier};
-    use crate::deterministic::random::Random;
+    use crate::deterministic::random::DeterministicRandom;
     use tracing::Level;
 
     #[test]
@@ -124,12 +132,12 @@ mod tests {
             assert!((*map).is_empty());
         }
 
-        let random = Random::new_with_seed(42);
+        let random = DeterministicRandom::new_with_seed(42);
         b.enable_buggify(random);
         assert!(b.is_buggify_enabled(), "should be activated");
 
         for i in 0..100 {
-            let result = if i == 8 { true } else { false };
+            let result = i == 8;
             assert_eq!(
                 b.buggify(),
                 result,
@@ -146,7 +154,7 @@ mod tests {
             let map = b.buggified_lines.lock();
             assert_eq!((*map).len(), 1);
             for key in (*map).keys() {
-                assert!(key.starts_with(&format!("{}", file!())));
+                assert!(key.starts_with(&file!().to_string()));
             }
             for value in (*map).values() {
                 assert!(value);
@@ -167,12 +175,12 @@ mod tests {
         assert!(!buggifier().is_buggify_enabled());
         assert!(!buggifier().buggify_with_prob(1.0), "should not buggified");
 
-        let random = Random::new_with_seed(42);
+        let random = DeterministicRandom::new_with_seed(42);
         buggifier().enable_buggify(random);
         assert!(buggifier().is_buggify_enabled(), "should be activated");
 
         for i in 0..100 {
-            let result = if i == 8 { true } else { false };
+            let result = i == 8;
             assert_eq!(
                 buggifier().buggify(),
                 result,
@@ -188,7 +196,7 @@ mod tests {
             let map = buggifier().buggified_lines.lock();
             assert_eq!((*map).len(), 1);
             for key in (*map).keys() {
-                assert!(key.starts_with(&format!("{}", file!())));
+                assert!(key.starts_with(&file!().to_string()));
             }
             for value in (*map).values() {
                 assert!(value);
