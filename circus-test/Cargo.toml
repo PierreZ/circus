@@ -27,6 +27,6 @@ categories = ["simulation", "development-tools::testing"]
 proc-macro = true
 
 [dependencies]
-rand = { version = "0.8.4", features = ["small_rng"] }
-syn = { version = "1.0", features = ["full"]}
-quote = "1.0"
+rand = { version = "0.8.5", features = ["small_rng"] }
+syn = { version = "1.0.94", features = ["full"] }
+quote = "1.0.18"
