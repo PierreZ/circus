@@ -6,7 +6,7 @@ A toolkit to develop distributed systems
 [![Coverage Status](https://coveralls.io/repos/github/PierreZ/circus/badge.svg?branch=main)](https://coveralls.io/github/PierreZ/circus?branch=main)
 [![Dependency Status](https://deps.rs/repo/github/PierreZ/circus/status.svg)](https://deps.rs/repo/github/PierreZ/circus)
 ![License](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue.svg)
-[![Minimum rustc version](https://img.shields.io/badge/rustc-1.51.0+-lightgray.svg)](#rust-version-requirements)
+[![Minimum rustc version](https://img.shields.io/badge/rustc-1.56.0+-lightgray.svg)](#rust-version-requirements)
 
 ## Overview
 
@@ -25,7 +25,7 @@ It will be compatible with both `async-std` and `Tokio`, allowing you to use Cir
 
 ## Rust version requirements
 
-The MSRV is Rust 1.51.0.
+The MSRV is Rust 1.56.0.
 
 ## Examples
 
