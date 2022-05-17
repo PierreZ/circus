@@ -1,5 +1,4 @@
 //! Deterministic platform module
-use crate::buggify::Buggifier;
 use crate::deterministic::fs::file::SimulatedFile;
 use crate::deterministic::random::DeterministicRandom;
 use crate::deterministic::runtime::reactor::DeterministicReactor;
@@ -14,6 +13,9 @@ use std::io::ErrorKind;
 use std::path::Path;
 use std::sync::Arc;
 
+use circus_buggify::Buggifier;
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
 use std::time::{Duration, Instant};
 
 /// Simulated version of the plateform. Every API exposed is subject to an deterministic output,
@@ -38,9 +40,9 @@ impl SimulationPlatform {
 
         SimulationPlatform {
             time: reactor.get_deterministic_time(),
-            random: random.clone(),
+            random,
             reactor,
-            buggifier: Arc::new(Buggifier::new(random)),
+            buggifier: Arc::new(Buggifier::new(SmallRng::seed_from_u64(seed))),
         }
     }
 }
@@ -145,7 +147,7 @@ mod tests {
             let mut platform = SimulationPlatform::new(42, reactor);
             for i in 0..10 {
                 let file_result = platform.open(Path::new("/etc/hosts")).await;
-                if i == 4 {
+                if i == 8 {
                     assert!(file_result.is_err());
                 } else {
                     assert!(file_result.is_ok());

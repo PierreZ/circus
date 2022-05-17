@@ -9,7 +9,6 @@
 //!
 //! Examples can be found in the [examples folder](https://github.com/PierreZ/circus/tree/main/simulation/examples).
 
-pub mod buggify;
 pub mod deterministic;
 pub mod file;
 pub mod platform;
