@@ -1,6 +1,6 @@
 [package]
 name = "circus_simulation"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Pierre Zemb <contact@pierrezemb.fr>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
