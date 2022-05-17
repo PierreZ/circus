@@ -1,7 +1,8 @@
-extern crate circus_simulation;
+extern crate circus_buggify;
 
-use circus_simulation::buggify::{buggifier, Buggifier};
-use circus_simulation::deterministic::random::DeterministicRandom;
+use circus_buggify::{buggify_with_prob, enable_buggify, Buggifier};
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
 use tracing::Level;
 
 fn main() {
@@ -12,11 +13,8 @@ fn main() {
     // let's create a buggifier
     let b = Buggifier::default();
 
-    // init random with a seed
-    let random = DeterministicRandom::new_with_seed(42);
-
-    // enables buggify
-    b.enable_buggify(random);
+    // enables buggify with a seed
+    b.enable_buggify(SmallRng::seed_from_u64(42));
 
     for i in 0..10 {
         // this block has a 0.05% chance to be run
@@ -32,8 +30,8 @@ fn main() {
     }
 
     // you can also get a static buggifier that needs to be enabled
-    buggifier().enable_buggify(DeterministicRandom::new_with_seed(42));
-    if buggifier().buggify_with_prob(1.00) {
+    enable_buggify(SmallRng::seed_from_u64(42));
+    if buggify_with_prob(1.00) {
         tracing::info!("buggified with a 100% probability!");
     }
 }

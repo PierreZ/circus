@@ -19,8 +19,9 @@ It will be compatible with both `async-std` and `Tokio`, allowing you to use Cir
 
 ## Available crates
 
-* [circus-simulation](/circus-simulation) [![Crates.io Version](https://img.shields.io/crates/v/circus_simulation.svg)](https://crates.io/crates/circus_simulation) [![Docs.rs](https://img.shields.io/docsrs/circus_simulation)](https://docs.rs/circus_simulation)
 * [circus-test](/circus-test) [![Crates.io Version](https://img.shields.io/crates/v/circus_test.svg)](https://crates.io/crates/circus_test) [![Docs.rs](https://img.shields.io/docsrs/circus_test)](https://docs.rs/circus_test)
+* [circus-buggify](/circus-buggify) [![Crates.io Version](https://img.shields.io/crates/v/circus_buggify.svg)](https://crates.io/crates/circus_buggify) [![Docs.rs](https://img.shields.io/docsrs/circus_buggify)](https://docs.rs/circus_buggify)
+* [circus-simulation](/circus-simulation) [![Crates.io Version](https://img.shields.io/crates/v/circus_simulation.svg)](https://crates.io/crates/circus_simulation) [![Docs.rs](https://img.shields.io/docsrs/circus_simulation)](https://docs.rs/circus_simulation)
 
 ## Rust version requirements
 

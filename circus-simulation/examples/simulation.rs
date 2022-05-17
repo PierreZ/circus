@@ -44,8 +44,8 @@ async fn run_platform(mut platform: PlatformProvider) {
                 .duration_since(start_time)
                 .eq(&Duration::from_millis(817)));
         }
-        if i == 4 {
-            // using the seed 42, the fourth opening will trigger an error.
+        if i == 8 {
+            // using the seed 42, the 8th opening will trigger an error.
             assert!(file_result.is_err());
         } else {
             assert!(file_result.is_ok());

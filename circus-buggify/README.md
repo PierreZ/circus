@@ -1,10 +1,10 @@
-# circus-buggify :circus_tent:
+# circus-simulation :circus_tent:
 
-A buggify-like feature, inspired by [FoundationDB](https://foundationdb.org)
+A simulation framework, inspired by [FoundationDB](https://foundationdb.org)
 
 ![status](https://img.shields.io/badge/status-experimental-red)
-[![Crates.io Version](https://img.shields.io/crates/v/circus_buggify.svg)](https://crates.io/crates/circus_simulation)
-[![Docs.rs](https://img.shields.io/docsrs/circus_buggify)](https://docs.rs/circus_simulation)
+[![Crates.io Version](https://img.shields.io/crates/v/circus_simulation.svg)](https://crates.io/crates/circus_simulation)
+[![Docs.rs](https://img.shields.io/docsrs/circus_simulation)](https://docs.rs/circus_simulation)
 [![Build status](https://github.com/PierreZ/circus/workflows/Build%20and%20test/badge.svg)](https://github.com/PierreZ/circus/actions)
 ![License](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue.svg)
 [![Minimum rustc version](https://img.shields.io/badge/rustc-1.51.0+-lightgray.svg)](#rust-version-requirements)
@@ -15,7 +15,7 @@ The MSRV is Rust 1.51.0.
 
 ## Examples
 
-Examples can be found in the [examples folder](/circus-buggify/examples).
+Examples can be found in the [examples folder](/circus-simulation/examples).
 
 ## License
 
