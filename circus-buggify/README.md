@@ -1,6 +1,6 @@
-# circus-simulation :circus_tent:
+# circus-buggify :circus_tent:
 
-A simulation framework, inspired by [FoundationDB](https://foundationdb.org)
+A buggify-like feature, inspired by [FoundationDB](https://foundationdb.org)
 
 ![status](https://img.shields.io/badge/status-experimental-red)
 [![Crates.io Version](https://img.shields.io/crates/v/circus_simulation.svg)](https://crates.io/crates/circus_simulation)

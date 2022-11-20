@@ -9,9 +9,11 @@
 
 Allow injection of a random seed upon a test. Can be overloaded with environment var `DETERMINISTIC_SEED`.
 
-## Example:
+## Example
+
 ```rust
 use circus_test::with_random_seed;
+
 #[with_random_seed]
 #[test]
 fn random_seed(seed: u64) {

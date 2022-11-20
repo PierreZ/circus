@@ -1,4 +1,5 @@
 # circus :circus_tent:
+
 A toolkit to develop distributed systems
 
 ![status](https://img.shields.io/badge/status-experimental-red)
@@ -12,6 +13,7 @@ A toolkit to develop distributed systems
 
 A sets of crates that will provide toolboxes to create distributed systems in Rust.
 Highly experimental for now, but the end-goal is to provide some helpers that the [FoundationDB's developers](https://www.foundationdb.org/) have:
+
 * a [simulator](https://www.youtube.com/watch?v=4fFDFbi3toc)
 * a [rpc framework](https://forums.foundationdb.org/t/why-was-flow-developed/1711/2) built using the simulator.
   
