@@ -28,5 +28,5 @@ proc-macro = true
 
 [dependencies]
 rand = { version = "0.8.5", features = ["small_rng"] }
-syn = { version = "1.0.94", features = ["full"] }
-quote = "1.0.18"
+syn = { version = "1.0.103", features = ["full"] }
+quote = "1.0.21"
